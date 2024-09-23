@@ -3,6 +3,8 @@ import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
 const books = await getCollection("books");
+
+export const prerender = true;
 ---
 
 <Layout title="Dev Books">
@@ -21,10 +23,19 @@ const books = await getCollection("books");
               return (
                 <div class="card">
                   <a href={`/libro/${book.slug}`}>
-                    <img src={book.data.img} alt={book.data.title} />
+                    <img
+                      transition:name={`img-${book.data.title}`}
+                      src={book.data.img}
+                      alt={book.data.title}
+                    />
                   </a>
                   <div class="card-body">
-                    <h2 class="card-title">{book.data.title}</h2>
+                    <h2
+                      class="card-title"
+                      transition:name={`title-${book.data.title}`}
+                    >
+                      {book.data.title}
+                    </h2>
                     <p class="card-text">{book.data.description}</p>
                     <p class="card-text">
                       Lectura en {book.data.readtime} minutos
