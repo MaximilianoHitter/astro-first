@@ -1,0 +1,80 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const books = await getCollection("books");
+  /* return books.map((book) => ({
+    params: { id: book.slug },
+    props: { book },
+  })); */
+
+  return Object.entries(books).map(([key, value]) => {
+    if (books.length - 1 == books.indexOf(value)) {
+      return {
+        params: { id: value.slug },
+        props: { book: value, next: books[0].slug },
+      };
+    } else {
+      let indice = books[books.indexOf(value) + 1].slug;
+      return {
+        params: { id: value.slug },
+        props: { book: value, next: indice },
+      };
+    }
+  });
+}
+
+const { book, next } = Astro.props;
+const { Content } = await render(book);
+const books = await getCollection("books");
+---
+
+<Layout title={`${book.data.title} - Dev Books`}>
+  <div class="flex gap-12 flex-row">
+    <div class="flex justify-center gap-2">
+      <aside>
+        <img
+          class="rounded w-72 h-auto"
+          src={`../${book.data.img}`}
+          alt={book.data.title}
+        />
+      </aside>
+      <div>
+        <h1 class="text-center text-6xl font-extrabold mb-3">
+          {book.data.title}
+        </h1>
+        <p class="text-center text-xl">{book.data.description}</p>
+        <div class="prose prose-invert w-full mt-2 mx-auto">
+          <Content />
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col gap-3 mt-4">
+      <a
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        href={`/`}
+      >
+        Inicio
+      </a>
+      {
+        books.map((book) => (
+          <a
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            href={`/libro/${book.slug}`}
+          >
+            {book.data.title}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+  <div class="flex justify-center">
+    <a
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      href={`/libro/${next}`}
+    >
+      Siguiente
+    </a>
+  </div>
+</Layout>
